@@ -60,6 +60,12 @@ wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
 
 # program
 while True:
+    if btn.value() == 0:
+        led.high()
+        relay.high()
+    else:
+        led.low()
+        relay.low()
     try:
         client = mqttConnect()
         client.subscribe(data_topic)
