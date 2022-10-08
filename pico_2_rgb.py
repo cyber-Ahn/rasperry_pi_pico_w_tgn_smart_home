@@ -7,10 +7,10 @@ from umqttsimple import MQTTClient
 from neopixel import Neopixel
 
 #var
-wlanSSID = 'Matrix'
-wlanPW = 'rhjk0096#Matrix'
+wlanSSID = 'WlanSSID'
+wlanPW = 'WlanPassword'
 country = 'DE'
-mqttBroker = '192.168.0.98'
+mqttBroker = 'MQTT Broker IP'
 mqttClient = 'pico_2'
 mqttUser = ''
 mqttPW = ''
