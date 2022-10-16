@@ -19,6 +19,7 @@ pico_rfid_SmartHome-On-Off-KasaHS100:
 
 switch SmartHome ON-OFF with Kasa HS100 and RFID-Card by cheking MQTT Status from Smart Home
 
+---------------------
 
 usde MicroPython Libs:
 
