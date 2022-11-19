@@ -43,5 +43,5 @@ umqttsimple.py
 
 .. |Build Status| image:: https://caworks-sl.de/images/build.png
    :target: https://caworks-sl.de
-.. |Python versions| image:: https://caworks-sl.de/images/python.png
+.. |Python versions| image:: https://caworks-sl.de/images/mpython.png
    :target: https://caworks-sl.de
