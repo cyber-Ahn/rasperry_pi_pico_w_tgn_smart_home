@@ -1,4 +1,7 @@
-# rasperry_pi_pico_w_tgn_smart_home
+rasperry_pi_pico_w_tgn_smart_home
+---------------------
+
+|Build Status|  |Python versions|
 
 pico_1:
 
@@ -34,3 +37,11 @@ netman.py
 temp_intern.py
 
 umqttsimple.py
+
+
+.. ..
+
+.. |Build Status| image:: https://caworks-sl.de/images/build.png
+   :target: https://caworks-sl.de
+.. |Python versions| image:: https://caworks-sl.de/images/python.png
+   :target: https://caworks-sl.de
