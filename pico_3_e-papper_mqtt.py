@@ -4,10 +4,10 @@ import netman
 from umqttsimple import MQTTClient
 from EPD_2in9 import EPD_2in9
 
-wlanSSID = 'WlanSSID'
-wlanPW = 'WlanPassword'
+wlanSSID = 'Matrix'
+wlanPW = 'rhjk0096#Matrix'
 country = 'DE'
-mqttBroker = 'MQTT Broker IP'
+mqttBroker = '192.168.0.98'
 mqttClient = 'pico_3'
 mqttUser = ''
 mqttPW = ''
@@ -39,7 +39,9 @@ con_a_name = "tgn/android/name"
 con_a_ver = "tgn/android/version"
 con_a_gps = "tgn/android/gps/status"
 con_a_sat = "tgn/android/gps/sat_fix"
+con_p_shutdown = "tgn/pico/shutdown"
 
+p_shutdown = "0"
 a_ip = "000.000.0.0"
 a_name = "not Found"
 a_ver = "00"
@@ -105,6 +107,7 @@ def sub_cb(topic, msg):
     global a_ver
     global a_gps
     global a_sat
+    global p_shutdown
     msg = msg.decode('utf-8')
     if topic.decode('utf-8') == con_e_temp:
         e_temp = msg
@@ -160,6 +163,8 @@ def sub_cb(topic, msg):
         a_gps = msg
     if topic.decode('utf-8') == con_a_sat:
         a_sat = msg
+    if topic.decode('utf-8') == con_p_shutdown:
+        p_shutdown = msg
     
 def mqttConnect():
     if mqttUser != '' and mqttPW != '':
@@ -229,7 +234,7 @@ def page_3():
     epd.text(power, 25, 225, 0x00)
     epd.text(total, 25, 235, 0x00)
     epd.display(epd.buffer)
-    epd.delay_ms(10000)
+    epd.delay_ms(60000)
     
 def page_4():
     epd.fill(0xff)
@@ -330,16 +335,24 @@ while True:
         client.subscribe(con_a_ver)
         client.subscribe(con_a_gps)
         client.subscribe(con_a_sat)
+        client.subscribe(con_p_shutdown)
         client.wait_msg()
     except OSError:
         print('Fehler: Keine MQTT-Verbindung')
     utime.sleep(1)
     client.publish(con_topic, wifi_connection[0],True)
     utime.sleep(1)
-    client.disconnect()
+    #client.disconnect()
     led.low()
-    page_3()
-    page_4()
-    page_5()
-
-clear_page()
+    print(p_shutdown)
+    if p_shutdown == "0":
+        page_3()
+        page_4()
+        page_5()
+    if p_shutdown == "1":
+        print("shutdown")
+        client.publish(con_p_shutdown, "0",True)
+        utime.sleep(1)
+        clear_page()
+        break
+    client.disconnect()
