@@ -4,10 +4,11 @@ import netman
 from umqttsimple import MQTTClient
 from EPD_2in9 import EPD_2in9
 
-wlanSSID = 'Matrix'
-wlanPW = 'rhjk0096#Matrix'
+#var
+wlanSSID = 'WlanSSID'
+wlanPW = 'WlanPassword'
 country = 'DE'
-mqttBroker = '192.168.0.98'
+mqttBroker = 'MQTT Broker IP'
 mqttClient = 'pico_3'
 mqttUser = ''
 mqttPW = ''
