@@ -1,9 +1,5 @@
-from machine import Pin, ADC
 import utime
-import dht
-import network
 import netman
-from umqttsimple import MQTTClient
 from neopixel import Neopixel
 
 #var
@@ -45,17 +41,6 @@ def sub_cb(topic, msg):
             pixels.fill((int(cach[0]), int(cach[1]), int(cach[2])))
             pixels.show()
 
-def mqttConnect():
-    if mqttUser != '' and mqttPW != '':
-        print("MQTT-Verbindung herstellen: %s mit %s als %s" % (mqttClient, mqttBroker, mqttUser))
-        client = MQTTClient(mqttClient, mqttBroker, user=mqttUser, password=mqttPW)
-    else:
-        print("MQTT-Verbindung herstellen: %s mit %s" % (mqttClient, mqttBroker))
-        client = MQTTClient(mqttClient, mqttBroker)
-    client.connect()
-    client.set_callback(sub_cb)
-    return client
-
 #ini
 led.low()
 wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
@@ -77,14 +62,13 @@ pixels.show()
 # program
 while True:
     led.high()
-    
-    try:
-        client = mqttConnect()
-        client.subscribe(color_topic)
-        client.subscribe(bright_topic)
-        client.wait_msg()
-    except OSError:
-        print('Fehler: Keine MQTT-Verbindung')
+    client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
+    if client == None:
+        machine.reset()
+    client.set_callback(sub_cb)
+    client.subscribe(color_topic)
+    client.subscribe(bright_topic)
+    client.wait_msg()
     utime.sleep(1)
     client.publish(con_topic, wifi_connection[0],True)
     led.low()

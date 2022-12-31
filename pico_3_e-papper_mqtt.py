@@ -1,13 +1,11 @@
 import utime
-import network
 import netman
-from umqttsimple import MQTTClient
 from EPD_2in9 import EPD_2in9
 
-wlanSSID = 'Matrix'
-wlanPW = 'rhjk0096#Matrix'
+wlanSSID = 'WlanSSID'
+wlanPW = 'WlanPassword'
 country = 'DE'
-mqttBroker = '192.168.0.98'
+mqttBroker = 'MQTT Broker IP'
 mqttClient = 'pico_3'
 mqttUser = ''
 mqttPW = ''
@@ -165,17 +163,6 @@ def sub_cb(topic, msg):
         a_sat = msg
     if topic.decode('utf-8') == con_p_shutdown:
         p_shutdown = msg
-    
-def mqttConnect():
-    if mqttUser != '' and mqttPW != '':
-        print("MQTT-Verbindung herstellen: %s mit %s als %s" % (mqttClient, mqttBroker, mqttUser))
-        client = MQTTClient(mqttClient, mqttBroker, user=mqttUser, password=mqttPW)
-    else:
-        print("MQTT-Verbindung herstellen: %s mit %s" % (mqttClient, mqttBroker))
-        client = MQTTClient(mqttClient, mqttBroker)
-    client.connect()
-    client.set_callback(sub_cb)
-    return client
 
 def clear_page():
     epd.Clear(0xff)
@@ -234,7 +221,7 @@ def page_3():
     epd.text(power, 25, 225, 0x00)
     epd.text(total, 25, 235, 0x00)
     epd.display(epd.buffer)
-    epd.delay_ms(60000)
+    epd.delay_ms(10000)
     
 def page_4():
     epd.fill(0xff)
@@ -304,47 +291,46 @@ wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
 page_2()
     
 # program
+#machine.reset()
 while True:
     led.high()
-    try:
-        client = mqttConnect()
-        client.subscribe(con_w_temp)
-        client.subscribe(con_w_hum)
-        client.subscribe(con_e_temp)
-        client.subscribe(con_e_hum)
-        client.subscribe(con_p_temp)
-        client.subscribe(con_p_hum)
-        client.subscribe(con_o_temp)
-        client.subscribe(con_o_hum)
-        client.subscribe(con_power)
-        client.subscribe(con_voltage)
-        client.subscribe(con_total)
-        client.subscribe(con_p_1)
-        client.subscribe(con_p_2)
-        client.subscribe(con_p_3)
-        client.subscribe(con_e_1)
-        client.subscribe(con_e_2)
-        client.subscribe(con_e_3)
-        client.subscribe(con_r_1)
-        client.subscribe(pihole_block)
-        client.subscribe(pihole_queries)
-        client.subscribe(pihole_client)
-        client.subscribe(pihole_dns)
-        client.subscribe(con_a_ip)
-        client.subscribe(con_a_name)
-        client.subscribe(con_a_ver)
-        client.subscribe(con_a_gps)
-        client.subscribe(con_a_sat)
-        client.subscribe(con_p_shutdown)
-        client.wait_msg()
-    except OSError:
-        print('Fehler: Keine MQTT-Verbindung')
+    client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
+    if client == None:
+        machine.reset()
+    client.set_callback(sub_cb)
+    client.subscribe(con_w_temp)
+    client.subscribe(con_w_hum)
+    client.subscribe(con_e_temp)
+    client.subscribe(con_e_hum)
+    client.subscribe(con_p_temp)
+    client.subscribe(con_p_hum)
+    client.subscribe(con_o_temp)
+    client.subscribe(con_o_hum)
+    client.subscribe(con_power)
+    client.subscribe(con_voltage)
+    client.subscribe(con_total)
+    client.subscribe(con_p_1)
+    client.subscribe(con_p_2)
+    client.subscribe(con_p_3)
+    client.subscribe(con_e_1)
+    client.subscribe(con_e_2)
+    client.subscribe(con_e_3)
+    client.subscribe(con_r_1)
+    client.subscribe(pihole_block)
+    client.subscribe(pihole_queries)
+    client.subscribe(pihole_client)
+    client.subscribe(pihole_dns)
+    client.subscribe(con_a_ip)
+    client.subscribe(con_a_name)
+    client.subscribe(con_a_ver)
+    client.subscribe(con_a_gps)
+    client.subscribe(con_a_sat)
+    client.subscribe(con_p_shutdown)
+    client.wait_msg()
     utime.sleep(1)
     client.publish(con_topic, wifi_connection[0],True)
     utime.sleep(1)
-    #client.disconnect()
     led.low()
-    print(p_shutdown)
     if p_shutdown == "0":
         page_3()
         page_4()

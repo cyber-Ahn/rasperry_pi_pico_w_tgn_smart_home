@@ -1,9 +1,7 @@
 from machine import Pin, ADC
 import utime
 import dht
-import network
 import netman
-from umqttsimple import MQTTClient
 
 #var
 wlanSSID = 'WlanSSID'
@@ -26,20 +24,6 @@ btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground
 sensor = dht.DHT22(Pin(2))
 ldr = ADC(0)
 
-#functions
-def mqttConnect():
-    if mqttUser != '' and mqttPW != '':
-        print("MQTT-Verbindung herstellen: %s mit %s als %s" % (mqttClient, mqttBroker, mqttUser))
-        client = MQTTClient(mqttClient, mqttBroker, user=mqttUser, password=mqttPW)
-    else:
-        print("MQTT-Verbindung herstellen: %s mit %s" % (mqttClient, mqttBroker))
-        client = MQTTClient(mqttClient, mqttBroker)
-    client.connect()
-    print()
-    print('MQTT-Verbindung hergestellt')
-    print()
-    return client
-
 #ini
 led.low()
 wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
@@ -58,18 +42,17 @@ while True:
     print("ADC: ", read)
     print("Temperature: {}°C   Humidity: {:.0f}% ".format(temp, hum))
     print("Button: " + btn_state)
-    try:
-        client = mqttConnect()
-        client.publish(temp_topic, str(temp),True)
-        client.publish(hum_topic, str(hum),True)
-        client.publish(b1_topic, btn_state,True)
-        client.publish(light_topic, str(read),True)
-        client.publish(con_topic, wifi_connection[0],True)
-        print("send to mqtt")
-        print()
-        client.disconnect()
-    except OSError:
-        print('Fehler: Keine MQTT-Verbindung')
+    client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
+    if client == None:
+        machine.reset()
+    client.publish(temp_topic, str(temp),True)
+    client.publish(hum_topic, str(hum),True)
+    client.publish(b1_topic, btn_state,True)
+    client.publish(light_topic, str(read),True)
+    client.publish(con_topic, wifi_connection[0],True)
+    print("send to mqtt")
+    print()
+    client.disconnect()
     utime.sleep(1)
     led.low()
     utime.sleep(10)
