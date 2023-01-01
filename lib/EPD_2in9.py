@@ -2,10 +2,8 @@ import framebuf
 from machine import Pin, SPI
 import utime
 
-# Display resolution
 EPD_WIDTH       = 128
 EPD_HEIGHT      = 296
-
 RST_PIN         = 12
 DC_PIN          = 8
 CS_PIN          = 9

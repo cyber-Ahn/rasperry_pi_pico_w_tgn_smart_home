@@ -9,7 +9,7 @@ mqttBroker = 'MQTT Broker IP'
 mqttClient = 'pico_3'
 mqttUser = ''
 mqttPW = ''
-con_topic = "tgn/pico_3/connection/ip";
+con_topic = "tgn/pico_3/connection/ip"
 con_w_temp = "tgn/weather/temp"
 con_w_hum = "tgn/weather/humidity"
 con_e_temp = "tgn/esp_1/temp/sensor_1"
@@ -70,42 +70,17 @@ power = "0"
 voltage = "0"
 total = "0"
 
-#set pins
-led = machine.Pin('LED', machine.Pin.OUT, value=0)
-#functions
+def mqtt_subscribe(topic):
+    num = len(topic)
+    for i in range(num):
+        client.subscribe(topic[i])
+
 def sub_cb(topic, msg):
-    global w_temp
-    global w_hum
-    global e_temp
-    global e_hum
-    global p_temp
-    global p_hum
-    global w_temp
-    global w_hum
-    global e_temp
-    global e_hum
-    global o_temp
-    global o_hum
-    global power
-    global voltage
-    global total
-    global p_1
-    global p_2
-    global p_3
-    global e_1
-    global e_2
-    global e_3
-    global r_1
-    global block
-    global queries
-    global client_p
-    global dns_p
-    global a_ip
-    global a_name
-    global a_ver
-    global a_gps
-    global a_sat
-    global p_shutdown
+    global w_temp; global w_hum; global e_temp; global e_hum; global p_temp; global p_hum; global e_temp; global e_hum; global o_temp; global o_hum
+    global power; global voltage; global total
+    global p_1; global p_2; global p_3; global e_1; global e_2; global e_3; global r_1
+    global block; global queries; global client_p; global dns_p
+    global a_ip; global a_name; global a_ver; global a_gps; global a_sat; global p_shutdown
     msg = msg.decode('utf-8')
     if topic.decode('utf-8') == con_e_temp:
         e_temp = msg
@@ -281,7 +256,7 @@ def page_5():
     epd.display(epd.buffer)
     epd.delay_ms(10000)
 
-#ini
+led = machine.Pin('LED', machine.Pin.OUT, value=0)
 led.low()
 epd = EPD_2in9()
 epd.init()
@@ -289,43 +264,18 @@ clear_page()
 page_1()
 wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
 page_2()
-    
-# program
-#machine.reset()
+
 while True:
     led.high()
     client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
     if client == None:
         machine.reset()
     client.set_callback(sub_cb)
-    client.subscribe(con_w_temp)
-    client.subscribe(con_w_hum)
-    client.subscribe(con_e_temp)
-    client.subscribe(con_e_hum)
-    client.subscribe(con_p_temp)
-    client.subscribe(con_p_hum)
-    client.subscribe(con_o_temp)
-    client.subscribe(con_o_hum)
-    client.subscribe(con_power)
-    client.subscribe(con_voltage)
-    client.subscribe(con_total)
-    client.subscribe(con_p_1)
-    client.subscribe(con_p_2)
-    client.subscribe(con_p_3)
-    client.subscribe(con_e_1)
-    client.subscribe(con_e_2)
-    client.subscribe(con_e_3)
-    client.subscribe(con_r_1)
-    client.subscribe(pihole_block)
-    client.subscribe(pihole_queries)
-    client.subscribe(pihole_client)
-    client.subscribe(pihole_dns)
-    client.subscribe(con_a_ip)
-    client.subscribe(con_a_name)
-    client.subscribe(con_a_ver)
-    client.subscribe(con_a_gps)
-    client.subscribe(con_a_sat)
-    client.subscribe(con_p_shutdown)
+    mqtt_subscribe([con_w_temp, con_w_hum, con_e_temp, con_e_hum, con_p_temp, con_p_hum, con_o_temp, con_o_hum])
+    mqtt_subscribe([con_power, con_voltage, con_total])
+    mqtt_subscribe([con_p_1, con_p_2, con_p_3, con_e_1, con_e_2, con_e_3, con_r_1])
+    mqtt_subscribe([pihole_block, pihole_queries, pihole_client, pihole_dns])
+    mqtt_subscribe([con_a_ip, con_a_name, con_a_ver, con_a_gps, con_a_sat, con_p_shutdown])
     client.wait_msg()
     utime.sleep(1)
     client.publish(con_topic, wifi_connection[0],True)

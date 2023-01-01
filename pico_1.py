@@ -3,7 +3,6 @@ import utime
 import dht
 import netman
 
-#var
 wlanSSID = 'WlanSSID'
 wlanPW = 'WlanPassword'
 country = 'DE'
@@ -16,19 +15,14 @@ temp_topic = b"tgn/pico_1/temp/sensor_1"
 hum_topic = b"tgn/pico_1/temp/sensor_2"
 b1_topic = "tgn/pico_1/button/b1"
 light_topic = "tgn/pico_1/analog/sensor_1"
-con_topic = "tgn/pico_1/connection/ip";
+con_topic = "tgn/pico_1/connection/ip"
 
-#set pins
 led = machine.Pin('LED', machine.Pin.OUT, value=0)
 btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground
 sensor = dht.DHT22(Pin(2))
 ldr = ADC(0)
-
-#ini
 led.low()
 wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
-
-# program
 while True:
     led.high()
     if btn.value() == 0:

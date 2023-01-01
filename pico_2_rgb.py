@@ -2,7 +2,6 @@ import utime
 import netman
 from neopixel import Neopixel
 
-#var
 wlanSSID = 'WlanSSID'
 wlanPW = 'WlanPassword'
 country = 'DE'
@@ -19,9 +18,6 @@ brightness = "0"
 col = "0"
 cach = []
 
-#set pins
-led = machine.Pin('LED', machine.Pin.OUT, value=0)
-#functions
 def sub_cb(topic, msg):
     global brightness
     global col
@@ -41,7 +37,7 @@ def sub_cb(topic, msg):
             pixels.fill((int(cach[0]), int(cach[1]), int(cach[2])))
             pixels.show()
 
-#ini
+led = machine.Pin('LED', machine.Pin.OUT, value=0)
 led.low()
 wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
 pixels = Neopixel(numpix, 0, gpio, "GRB")
@@ -58,8 +54,6 @@ pixels.show()
 utime.sleep(5)
 pixels.fill((0, 0, 0))
 pixels.show()
-
-# program
 while True:
     led.high()
     client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
