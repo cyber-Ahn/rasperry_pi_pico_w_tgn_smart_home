@@ -14,9 +14,16 @@ pico_2:
 
 red data from mqtt for RGB Light WS2812b
 
+
+pico_3:
+
+red data from mqtt and set to E-Paper Display
+
+
 pico_sonoff_firmware:
 
 simulated a sonoff modul
+
 
 pico_rfid_SmartHome-On-Off-KasaHS100:
 
@@ -34,7 +41,7 @@ neopixel.py
 
 netman.py
 
-temp_intern.py
+EPD_2in9.py
 
 umqttsimple.py
 
