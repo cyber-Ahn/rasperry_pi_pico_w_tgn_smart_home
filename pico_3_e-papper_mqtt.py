@@ -1,15 +1,18 @@
 import utime
 import netman
+import json
+import socket
 from EPD_2in9 import EPD_2in9
 
 wlanSSID = 'WlanSSID'
 wlanPW = 'WlanPassword'
 country = 'DE'
 mqttBroker = 'MQTT Broker IP'
+time_server = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
 mqttClient = 'pico_3'
 mqttUser = ''
 mqttPW = ''
-con_topic = "tgn/pico_3/connection/ip"
+con_topic = "tgn/pico_3/connection/ip";
 con_w_temp = "tgn/weather/temp"
 con_w_hum = "tgn/weather/humidity"
 con_e_temp = "tgn/esp_1/temp/sensor_1"
@@ -69,6 +72,29 @@ o_hum = "0.0"
 power = "0"
 voltage = "0"
 total = "0"
+
+#set pins
+led = machine.Pin('LED', machine.Pin.OUT, value=0)
+#functions
+def http_get(url):
+    result = ''
+    _, _, host, path = url.split('/', 3)
+    addr = socket.getaddrinfo(host, 80)[0][-1]
+    s = socket.socket()
+    s.connect(addr)
+    s.send(bytes('GET /%s HTTP/1.0\r\nHost: %s\r\n\r\n' % (path, host), 'utf8'))
+    while True:
+        data = s.recv(100)
+        if data:
+            result = result + str(data, 'utf8')
+        else:
+            break
+    s.close()
+    return result
+
+def findJson(response):
+    txt = 'abbreviation'
+    return response[response.find(txt)-2:]
 
 def mqtt_subscribe(topic):
     num = len(topic)
@@ -167,7 +193,7 @@ def page_2():
     epd.display(epd.buffer)
     epd.delay_ms(9000)
 
-def page_3():
+def page_3(date, time):
     epd.fill(0xff)
     epd.line(0, 0, 128, 0, 0x00)
     epd.line(0, 0, 0, 296, 0x00)
@@ -195,10 +221,12 @@ def page_3():
     epd.text(voltage, 25, 215, 0x00)
     epd.text(power, 25, 225, 0x00)
     epd.text(total, 25, 235, 0x00)
+    epd.line(0, 275, 128, 275, 0x00)
+    epd.text(time+"-"+date, 10, 285, 0x00)
     epd.display(epd.buffer)
-    epd.delay_ms(10000)
+    epd.delay_ms(60000)
     
-def page_4():
+def page_4(date, time):
     epd.fill(0xff)
     epd.line(0, 0, 128, 0, 0x00)
     epd.line(0, 0, 0, 296, 0x00)
@@ -227,10 +255,12 @@ def page_4():
     epd.text("ESP 3", 5, 205, 0x00)
     epd.text(e_3, 10, 215, 0x00)
     epd.line(0, 225, 128, 225, 0x00)
+    epd.line(0, 275, 128, 275, 0x00)
+    epd.text(time+"-"+date, 10, 285, 0x00)
     epd.display(epd.buffer)
     epd.delay_ms(10000)
 
-def page_5():
+def page_5(date, time):
     epd.fill(0xff)
     epd.line(0, 0, 128, 0, 0x00)
     epd.line(0, 0, 0, 296, 0x00)
@@ -253,10 +283,12 @@ def page_5():
     epd.text("Version:"+a_ver, 5, 155, 0x00)
     epd.text("GPS:"+a_gps, 5, 165, 0x00)
     epd.text("Sat-Fix:"+a_sat, 5, 175, 0x00)
+    epd.line(0, 275, 128, 275, 0x00)
+    epd.text(time+"-"+date, 10, 285, 0x00)
     epd.display(epd.buffer)
     epd.delay_ms(10000)
 
-led = machine.Pin('LED', machine.Pin.OUT, value=0)
+#ini
 led.low()
 epd = EPD_2in9()
 epd.init()
@@ -264,9 +296,13 @@ clear_page()
 page_1()
 wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
 page_2()
-
+    
+# program
 while True:
     led.high()
+    aDict = json.loads(findJson(http_get(time_server)))
+    date = aDict['datetime'].split("T")[0].split("20")[1].replace("-", ".")
+    time = aDict['datetime'].split("T")[1].split(".")[0].split(":")[0]+":"+aDict['datetime'].split("T")[1].split(".")[0].split(":")[1]
     client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
     if client == None:
         machine.reset()
@@ -282,9 +318,9 @@ while True:
     utime.sleep(1)
     led.low()
     if p_shutdown == "0":
-        page_3()
-        page_4()
-        page_5()
+        page_3(date, time)
+        page_4(date, time)
+        page_5(date, time)
     if p_shutdown == "1":
         print("shutdown")
         client.publish(con_p_shutdown, "0",True)
