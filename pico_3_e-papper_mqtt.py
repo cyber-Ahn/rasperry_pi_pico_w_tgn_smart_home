@@ -72,6 +72,8 @@ o_hum = "0.0"
 power = "0"
 voltage = "0"
 total = "0"
+date = "0"
+time = "0"
 
 #set pins
 led = machine.Pin('LED', machine.Pin.OUT, value=0)
@@ -300,10 +302,14 @@ page_2()
 # program
 while True:
     led.high()
-    aDict = json.loads(findJson(http_get(time_server)))
-    date = aDict['datetime'].split("T")[0].split("20")[1].replace("-", ".")
-    time = aDict['datetime'].split("T")[1].split(".")[0].split(":")[0]+":"+aDict['datetime'].split("T")[1].split(".")[0].split(":")[1]
-    client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
+    try:
+        aDict = json.loads(findJson(http_get(time_server)))
+        date = aDict['datetime'].split("T")[0].split("20")[1].replace("-", ".")
+        time = aDict['datetime'].split("T")[1].split(".")[0].split(":")[0]+":"+aDict['datetime'].split("T")[1].split(".")[0].split(":")[1]
+    except:
+        print("No connection")
+        time = "No connection"
+    client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)    
     if client == None:
         machine.reset()
     client.set_callback(sub_cb)
