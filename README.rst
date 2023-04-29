@@ -31,7 +31,7 @@ switch SmartHome ON-OFF with Kasa HS100 and RFID-Card by cheking MQTT Status fro
 
 ---------------------
 
-usde MicroPython Libs:
+used MicroPython Libs:
 
 base64.py
 
