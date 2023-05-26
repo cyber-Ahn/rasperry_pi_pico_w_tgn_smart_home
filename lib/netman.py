@@ -28,15 +28,17 @@ def connectWiFi(ssid,password,country):
       print('waiting for connection...')
       time.sleep(1)
    if wlan.status() != 3:
-      raise RuntimeError('network connection failed')
+      print('network connection failed')
+      time.sleep(30)
+      machine.reset()
    else:
       print('WIFI connected')
       status = wlan.ifconfig()
       print( 'ip = ' + status[0] )
-   return status
+   return wlan
 
 def mqttConnect(mqttClient_s, mqttBroker_s, mqttUser_s, mqttPW_s):
-    max_wait = 10
+    max_wait = 60
     while max_wait > 0:
         try:
             if mqttUser_s != '' and mqttPW_s != '':
@@ -50,7 +52,6 @@ def mqttConnect(mqttClient_s, mqttBroker_s, mqttUser_s, mqttPW_s):
         except OSError:
             max_wait -= 1
             print('Error: No MQTT connection')
-            time.sleep(1)
+            time.sleep(10)
     else:
-        print("Reboot")
         time.sleep(60)

@@ -2,6 +2,7 @@ from machine import Pin, ADC
 import utime
 import dht
 import netman
+import uasyncio
 
 wlanSSID = 'WlanSSID'
 wlanPW = 'WlanPassword'
@@ -22,31 +23,68 @@ btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground
 sensor = dht.DHT22(Pin(2))
 ldr = ADC(0)
 led.low()
-wifi_connection = netman.connectWiFi(wlanSSID,wlanPW,country)
-while True:
-    led.high()
-    if btn.value() == 0:
-        btn_state = "1"
-    else:
-        btn_state = "0"
-    sensor.measure()
-    temp = sensor.temperature()
-    hum = sensor.humidity()
-    read = ldr.read_u16()
-    print("ADC: ", read)
-    print("Temperature: {}°C   Humidity: {:.0f}% ".format(temp, hum))
-    print("Button: " + btn_state)
-    client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
-    if client == None:
-        machine.reset()
-    client.publish(temp_topic, str(temp),True)
-    client.publish(hum_topic, str(hum),True)
-    client.publish(b1_topic, btn_state,True)
-    client.publish(light_topic, str(read),True)
-    client.publish(con_topic, wifi_connection[0],True)
-    print("send to mqtt")
-    print()
-    client.disconnect()
-    utime.sleep(1)
-    led.low()
-    utime.sleep(10)
+connected = False
+wifi = None
+
+def connect_to_wifi():
+    global connected
+    global wifi
+    connected = False
+    wifi = netman.connectWiFi(wlanSSID,wlanPW,country)
+    connected = True
+    return wifi
+    
+async def lan():
+    wifi = connect_to_wifi()
+    while True:
+        if not wifi.isconnected():
+            wifi = connect_to_wifi()
+        await uasyncio.sleep_ms(0)
+
+async def web():
+    while True:
+        if connected:
+            print("Server")
+        await uasyncio.sleep(15)
+
+async def prog():
+    while True:
+        if connected:
+            led.high()
+            if btn.value() == 0:
+                btn_state = "1"
+            else:
+                btn_state = "0"
+            sensor.measure()
+            temp = sensor.temperature()
+            hum = sensor.humidity()
+            read = ldr.read_u16()
+            print("ADC: ", read)
+            print("Temperature: {}°C   Humidity: {:.0f}% ".format(temp, hum))
+            print("Button: " + btn_state)
+            client = netman.mqttConnect(mqttClient, mqttBroker, mqttUser, mqttPW)
+            if client == None:
+                machine.reset()
+            client.publish(temp_topic, str(temp),True)
+            client.publish(hum_topic, str(hum),True)
+            client.publish(b1_topic, btn_state,True)
+            client.publish(light_topic, str(read),True)
+            if not wifi == None:
+                client.publish(con_topic, wifi.ifconfig()[0],True)
+            print("send to mqtt")
+            print()
+            client.disconnect()
+            await uasyncio.sleep(1)
+            led.low()
+        await uasyncio.sleep(10)
+        
+async def main():
+    while True:
+        try:
+            tasks = (uasyncio.create_task(lan()),uasyncio.create_task(prog()),uasyncio.create_task(web()))
+            await uasyncio.gather(*tasks)
+        except Exception as e:
+            print(e)
+            uasyncio.new_event_loop()
+            await uasyncio.sleep(20)
+uasyncio.run(main())

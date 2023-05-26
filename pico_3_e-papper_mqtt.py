@@ -191,7 +191,7 @@ def page_1():
 def page_2():
     epd.fill(0xff)
     epd.text("WIFI Connected", 5, 125, 0x00)
-    epd.text("IP:"+wifi_connection[0], 5, 135, 0x00)
+    epd.text("IP:"+wifi_connection.ifconfig()[0], 5, 135, 0x00)
     epd.display(epd.buffer)
     epd.delay_ms(9000)
 
@@ -320,7 +320,7 @@ while True:
     mqtt_subscribe([con_a_ip, con_a_name, con_a_ver, con_a_gps, con_a_sat, con_p_shutdown])
     client.wait_msg()
     utime.sleep(1)
-    client.publish(con_topic, wifi_connection[0],True)
+    client.publish(con_topic, wifi_connection.ifconfig()[0],True)
     utime.sleep(1)
     led.low()
     if p_shutdown == "0":
