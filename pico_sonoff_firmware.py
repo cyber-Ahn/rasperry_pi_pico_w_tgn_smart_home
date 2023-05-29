@@ -53,11 +53,16 @@ async def lan():
             wifi = connect_to_wifi()
         await uasyncio.sleep_ms(0)
 
-async def web():
-    while True:
-        if connected:
-            print("Server")
-        await uasyncio.sleep(15)
+async def web_handler(reader, writer):
+    request_line = str(await reader.readline())
+    while await reader.readline() != b"\r\n":
+        pass
+    writer.write('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
+    await writer.drain()
+    await writer.wait_closed()
+    should_reset = request_line.find('/reset') != -1
+    if should_reset:
+        machine.reset()
         
 async def prog():
     while True:
@@ -78,7 +83,7 @@ async def prog():
 async def main():
     while True:
         try:
-            tasks = (uasyncio.create_task(lan()),uasyncio.create_task(prog()),uasyncio.create_task(web()))
+            tasks = (uasyncio.create_task(lan()),uasyncio.create_task(prog()),uasyncio.create_task(uasyncio.start_server(web_handler, "0.0.0.0", 80)))
             await uasyncio.gather(*tasks)
         except Exception as e:
             print(e)
