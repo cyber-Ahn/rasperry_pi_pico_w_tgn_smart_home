@@ -8,16 +8,16 @@ wlanSSID = 'WlanSSID'
 wlanPW = 'WlanPassword'
 country = 'DE'
 mqttBroker = 'MQTT Broker IP'
-mqttClient = 'Kids Room'
+mqttClient = 'Living Room'
 mqttUser = ''
 mqttPW = ''
 btn_state="0"
-temp_topic = b"tgn/pico_1/temp/sensor_1"
-hum_topic = b"tgn/pico_1/temp/sensor_2"
-b1_topic = "tgn/pico_1/button/b1"
-light_topic = "tgn/pico_1/analog/sensor_1"
-con_topic = "tgn/pico_1/connection/ip"
-name_topic = "tgn/pico_1/name"
+temp_topic = b"tgn/esp_1/temp/sensor_1"
+hum_topic = b"tgn/esp_1/temp/sensor_2"
+b1_topic = "tgn/esp_1/button/b1"
+light_topic = "tgn/esp_1/analog/sensor_1"
+con_topic = "tgn/esp_1/connection/ip"
+name_topic = "tgn/esp_1/name"
 
 led = machine.Pin('LED', machine.Pin.OUT, value=0)
 btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground
