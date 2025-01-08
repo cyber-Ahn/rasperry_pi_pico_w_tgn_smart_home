@@ -9,6 +9,8 @@ wlanPW = 'WlanPassword'
 country = 'DE'
 mqttBroker = 'MQTT Broker IP'
 mqttClient = 'Bedroom'
+ocor_temp = 0
+ocor_hum = 0
 mqttUser = ''
 mqttPW = ''
 btn_state="0"
@@ -64,6 +66,8 @@ async def prog():
             sensor.measure()
             temp = sensor.temperature()
             hum = sensor.humidity()
+            temp = temp + ocor_temp
+            hum = hum + ocor_hum
             read = ldr.read_u16()
             print("ADC: ", read)
             print("Temperature: {}°C   Humidity: {:.0f}% ".format(temp, hum))
