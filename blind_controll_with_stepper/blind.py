@@ -68,7 +68,7 @@ def sub_cb(topic, msg):
     if topic.decode('utf-8') == steps_topic:
         steps = int(msg)
     if topic.decode('utf-8') == delay_topic:
-        delay = round(float(msg),2)
+        delay = round(float(msg),3)
     if topic.decode('utf-8') == is_topic:
         is_pos = msg
     if topic.decode('utf-8') == set_topic:
