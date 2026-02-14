@@ -4,10 +4,10 @@ import dht
 import netman
 import uasyncio
 
-wlanSSID = 'Matrix'
-wlanPW = 'rhjk0096#Matrix'
+wlanSSID = 'WlanSSID'
+wlanPW = 'WlanPassword'
 country = 'DE'
-mqttBroker = '192.168.0.98'
+mqttBroker = 'MQTT Broker IP'
 mqttClient = 'Outside'
 ocor_temp = -1.7
 ocor_hum = -4.2
