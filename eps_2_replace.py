@@ -22,7 +22,7 @@ con_topic = "tgn/esp_2/connection/ip"
 name_topic = "tgn/esp_2/name"
 
 led = machine.Pin('LED', machine.Pin.OUT, value=0)
-btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground
+btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground GND
 sensor = dht.DHT22(Pin(2))
 ldr = ADC(0)
 led.low()
