@@ -56,7 +56,7 @@ umqttsimple.py
 
 .. ..
 
-.. |Build Status| image:: https://caworks-sl.de/images/build.png
-   :target: https://caworks-sl.de
-.. |Python versions| image:: https://caworks-sl.de/images/mpython.png
-   :target: https://caworks-sl.de
+.. |Build Status| image:: https://cyber-ahn.com/images/build.png
+   :target: https://cyber-ahn.com
+.. |Python versions| image:: https://cyber-ahn.com/images/mpython.png
+   :target: https://cyber-ahn.com
