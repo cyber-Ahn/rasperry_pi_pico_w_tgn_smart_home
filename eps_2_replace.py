@@ -3,6 +3,7 @@ import utime
 import dht
 import netman
 import uasyncio
+from TemperatureSensors import TmpSensor
 
 wlanSSID = 'WlanSSID'
 wlanPW = 'WlanPassword'
@@ -18,16 +19,19 @@ temp_topic = b"tgn/esp_2/temp/sensor_1"
 hum_topic = b"tgn/esp_2/temp/sensor_2"
 b1_topic = "tgn/esp_2/button/b1"
 light_topic = "tgn/esp_2/analog/sensor_1"
+atemp_topic = "tgn/esp_2/analog/sensor_2"
 con_topic = "tgn/esp_2/connection/ip"
 name_topic = "tgn/esp_2/name"
 
 led = machine.Pin('LED', machine.Pin.OUT, value=0)
-btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground GND
+btn = machine.Pin(15, machine.Pin.IN, machine.Pin.PULL_UP) #btn with ground
 sensor = dht.DHT22(Pin(2))
 ldr = ADC(0)
 led.low()
 connected = False
 wifi = None
+adcpin = 27
+tmp = TmpSensor(adcpin)
 
 def connect_to_wifi():
     global connected
@@ -65,6 +69,10 @@ async def prog():
             else:
                 btn_state = "0"
             sensor.measure()
+            degC = tmp.ReadTmp36()
+            print("-----------------")
+            print(degC)
+            print("-----------------")
             temp = sensor.temperature()
             hum = sensor.humidity()
             temp = temp + ocor_temp
@@ -81,6 +89,7 @@ async def prog():
             client.publish(b1_topic, btn_state,True)
             client.publish(light_topic, str(read),True)
             client.publish(name_topic, str(mqttClient),True)
+            client.publish(atemp_topic, str(degC),True)
             if not wifi == None:
                 client.publish(con_topic, wifi.ifconfig()[0],True)
             print("send to mqtt")
